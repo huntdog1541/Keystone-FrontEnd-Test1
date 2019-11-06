@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Front-end Test1</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.css">
+        <!-- <link rel="stylesheet" href="stylesheets/style.css"> -->
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.js" ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/gas/gas.js" ></script>
+    </head>
+    <body>
+        <h1>KeystoneJS-Test1</h1>
+        <form id="code-editor form">
+        <textarea class="code-editor" id="code" name="code">code text</textarea>
+        </form>
+        <button id="submit_button" onclick="print_info()">Submit</button>
+        <form >
+        <textarea id="bin" name="binary" readonly>binary</textarea>
+        </form>
+    </body>
+    <script>
+         let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: {
+                name: "gas", architecture: "x86"
+            }
+        });
+
+  let bin_view = CodeMirror.fromTextArea(document.getElementById('bin'),
+      {
+          lineNumbers: true,
+          readonly: true
+      });
+
+  let print_info = function()
+        {
+            console.log("Submit clicked");
+            send_data();
+        };
+
+    let send_data = function()
+    {
+        let code = editor.getValue();
+        console.log(code);
+        $.post("http://localhost:3000/api", { code: code }, (data, status) => {
+            if(status === 'success')
+            {
+                bin_view.getDoc().setValue(data);
+                console.log(`DATA: ${data}`);
+            }
+            else
+                bin_view.getDoc().setValue("Error");
+        });
+    }
+    </script>
+</html>

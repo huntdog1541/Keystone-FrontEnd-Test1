@@ -1,0 +1,35 @@
+FROM dwhunt/emsdk-base-image
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# The node image comes with a base non-root 'node' user which this Dockerfile
+# gives sudo access. However, for Linux, this user's GID/UID must match your local
+# user UID/GID to avoid permission issues with bind mounts. Update USER_UID / USER_GID 
+# if yours is not 1000. See https://aka.ms/vscode-remote/containers/non-root-user.
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+# Configure apt and install packages
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+    && apt-get -y install build-essential gcc g++ python python-pip cmake nano nodejs npm \
+    #
+    # Verify git and needed tools are installed
+    && apt-get install -y git procps \
+    # Create Keystone Dependency
+    && mkdir Dependency && cd Dependency && git clone https://github.com/keystone-engine/keystone.git \
+    && cd keystone && mkdir build && cd build && ../make-share.sh && make install \
+    && echo '/usr/local/lib' > /etc/ld.so.conf && ldconfig \
+    # [Optional] Add sudo support for non-root users
+    && apt-get install -y sudo \
+    && echo node ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/node \
+    && chmod 0440 /etc/sudoers.d/node \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=

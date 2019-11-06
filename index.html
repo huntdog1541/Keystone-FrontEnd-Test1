@@ -20,6 +20,8 @@
         </form>
     </body>
     <script>
+    let data_sent = "Undefined"
+    
          let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
             mode: {
@@ -46,8 +48,10 @@
         $.post("http://localhost:3000/api", { code: code }, (data, status) => {
             if(status === 'success')
             {
-                bin_view.getDoc().setValue(data);
-                console.log(`DATA: ${data}`);
+                data_sent = data
+                let hex_format = data.match(/.{1,2}/g).join("-")
+                bin_view.getDoc().setValue(hex_format);
+                console.log(`DATA: ${hex_format}`);
             }
             else
                 bin_view.getDoc().setValue("Error");

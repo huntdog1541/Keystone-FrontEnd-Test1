@@ -1,4 +1,4 @@
-var keystone = require('.')  // Or: require('keystone') if you have installed it
+var keystone = require('../index.js')  // Or: require('keystone') if you have installed it
 
 console.log('Using keystone ' + keystone.version.major + '.' + keystone.version.minor)
 

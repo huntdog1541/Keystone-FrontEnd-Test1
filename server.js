@@ -2,6 +2,9 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 
+const keystone = require('.');
+let ks, assembly, result
+
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
@@ -10,10 +13,39 @@ app.get('/', (req, res) => {
 
 app.post('/api', (req, res) => {
     const code = req.body.code;
+    
     console.log(`POST request: code is { ${code} }`);
-    res.end(`API Success`);
+    let ans = execute();
+    console.log(ans);
+    res.end(ans);
 });
 
 app.listen(3000, () => {
     console.log("Started on http://localhost:3000");
 });
+
+let execute = function()
+{
+    console.log("Executing Keystone");
+    if(! keystone.is_arch_supported(keystone.ARCH_X86))
+    {
+        console.log("Warning: X86 architecture not supported by keystone");
+    }
+
+    ks = new keystone.Ks(keystone.ARCH_X86, keystone.MODE_64);
+
+    // Assemble some instructions
+    assembly = 'inc rcx; dec rbx';
+    try{
+        result = ks.asm(assembly);
+        console.log('"' + assembly + '"', ':', result.encoding);
+        console.log('Hex: ' + result.encoding.toString('hex'));
+        return result.encoding.toString('hex');
+    }
+    catch(err)
+    {
+        console.log("Error: " + err.message);
+    }
+    
+    console.log("End Keystone");
+};

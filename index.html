@@ -12,7 +12,10 @@
     <body>
         <h1>KeystoneJS-Test1</h1>
         <form id="code-editor form">
-        <textarea class="code-editor" id="code" name="code">code text</textarea>
+        <textarea class="code-editor" id="code" name="code">
+            inc rcx
+            dec rbx
+        </textarea>
         </form>
         <button id="submit_button" onclick="print_info()">Submit</button>
         <form >
@@ -21,31 +24,60 @@
     </body>
     <script>
     let data_sent = "Undefined"
+    let debug_text;
     
-         let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            lineNumbers: true,
-            mode: {
-                name: "gas", architecture: "x86"
-            }
-        });
+    let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: {
+            name: "gas", architecture: "x86"
+        }
+    });
 
   let bin_view = CodeMirror.fromTextArea(document.getElementById('bin'),
-      {
-          lineNumbers: true,
-          readonly: true
-      });
+  {
+      lineNumbers: true,
+      readonly: true
+  });
 
   let print_info = function()
+    {
+        console.log("Submit clicked");
+        send_data();
+    };
+
+    /** $(window).load(
+        function()
         {
-            console.log("Submit clicked");
-            send_data();
-        };
+            let clean_text = editor.getDoc().getValue();
+            console.log("Cleaned Text: \"" + clean_text + "\"");
+            bin_view.getDoc().setValue(clean_text);
+        }
+    ); */
+
+    $(document).ready(function() {
+        let clean_text = editor.getDoc().getValue().trim().replace(/^\s+/gm, '');
+        debug_text = clean_text;
+        console.log("Cleaned Text: \"" + clean_text + "\"");
+        editor.getDoc().setValue(clean_text);
+    });
+
+    let get_filtered_data = function()
+    {
+        let code_text = editor.getDoc().getValue().trim().replace(/^\s+/gm, '');
+        debug_text = code_text;
+        console.log(code_text);
+        var new_line = /(?:\n)/g;
+        console.log(code_text.replace(new_line, ';'));
+        return code_text.replace(new_line, ';');
+    }
 
     let send_data = function()
     {
-        let code = editor.getValue();
-        console.log(code);
-        $.post("http://localhost:3000/api", { code: code }, (data, status) => {
+        let code = get_filtered_data();
+        console.log("Sending Data: \"" + code + "\"");
+        let send_code = JSON.stringify(code.split(';'));
+        console.log(code.split(';'));
+        $.post("http://localhost:3000/api", { code: send_code }, (data, status) => {
             if(status === 'success')
             {
                 data_sent = data

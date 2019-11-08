@@ -37,14 +37,22 @@ let execute2 = function(code)
 
     ks = new keystone.Ks(keystone.ARCH_X86, keystone.MODE_64);
     // Assemble some instructions
-    let i = 0;
-    assembly = code[i];
+
     console.log("Assembly: \"" + assembly + "\"");
     try{
-        result = ks.asm(assembly);
-        console.log("Results: " + result.encoding.toString());
-        console.log("Hex: " + result.encoding.toString('hex'));
-        return result.encoding.toString('hex');
+        let code_size = code.length;
+        console.log("Code size: " + code_size);
+        var data_result = [];
+        for(let i = 0; i < code_size; i++)
+        {
+            assembly = code[i];
+            result = ks.asm(assembly);
+            console.log("Results: " + result.encoding.toString());
+            console.log("Hex: " + result.encoding.toString('hex'));
+            data_result.push(result.encoding.toString('hex'));
+        }
+        console.log("Data Results: " + data_result);
+        return JSON.stringify(data_result);
     }
     catch(err)
     {

@@ -69,7 +69,7 @@
         var new_line = /(?:\n)/g;
         console.log(code_text.replace(new_line, ';'));
         return code_text.replace(new_line, ';');
-    }
+    };
 
     let send_data = function()
     {
@@ -80,14 +80,31 @@
         $.post("http://localhost:3000/api", { code: send_code }, (data, status) => {
             if(status === 'success')
             {
-                data_sent = data
-                let hex_format = data.match(/.{1,2}/g).join("-")
+                data_sent = data;
+                let hex_format = format_data(JSON.parse(data));
                 bin_view.getDoc().setValue(hex_format);
                 console.log(`DATA: ${hex_format}`);
             }
             else
                 bin_view.getDoc().setValue("Error");
         });
+    };
+
+    let format_data = function(data)
+    {
+        let size = data.length;
+        let results = "";
+        for(var i = 0; i < size; i++)
+        {
+            let temp = data[i];
+            data[i] = temp.match(/.{1,2}/g).join("-");
+            results = results.concat(data[i]);
+            if((i+1) !== size)
+            {
+                results = results.concat("\n");
+            }
+        }
+        return results;
     }
     </script>
 </html>

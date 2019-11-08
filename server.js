@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 
 const keystone = require('.');
-let ks, assembly, result
+let ks, assembly, result;
 
 app.use(cors());
 
@@ -52,7 +52,7 @@ let execute2 = function(code)
     }
     console.log("Exiting Keystone");
     return '';
-}
+};
 
 let execute = function()
 {
